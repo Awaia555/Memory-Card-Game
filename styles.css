@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    width: 95%;
+}
+
+.screen {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+h1 {
+    color: #2a5298;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+input[type="text"] {
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    margin-right: 1rem;
+    width: 250px;
+}
+
+button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    background-color: #2a5298;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #1e3c72;
+}
+
+.difficulty {
+    margin-top: 2rem;
+}
+
+.difficulty-btn {
+    margin: 0.5rem;
+    background-color: #4CAF50;
+}
+
+.difficulty-btn:hover {
+    background-color: #45a049;
+}
+
+.game-header {
+    margin-bottom: 2rem;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+.card {
+    aspect-ratio: 1;
+    background-color: #2a5298;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    transform-style: preserve-3d;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    border-radius: 5px;
+}
+
+.card-front {
+    background-color: #2a5298;
+}
+
+.card-back {
+    background-color: white;
+    transform: rotateY(180deg);
+}
+
+.score-details {
+    margin: 2rem 0;
+    font-size: 1.2rem;
+}
+
+#leaderboard-list {
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.leaderboard-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Celebration animation */
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.celebration {
+    animation: celebrate 0.5s ease-in-out;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    #game-board {
+        grid-template-columns: repeat(3, 1fr);
+    }
+} 
