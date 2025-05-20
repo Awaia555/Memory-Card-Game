@@ -119,9 +119,12 @@ function checkMatch() {
         card1.isMatched = card2.isMatched = true;
         gameState.matchedPairs++;
         
-        // Add celebration animation
+        // Add celebration animation and matched class
         const cardElements = document.querySelectorAll(`[data-id="${card1.id}"], [data-id="${card2.id}"]`);
-        cardElements.forEach(card => card.classList.add('celebration'));
+        cardElements.forEach(card => {
+            card.classList.add('celebration');
+            card.classList.add('matched');
+        });
         
         if (gameState.matchedPairs === config[gameState.difficulty].pairs) {
             endGame();
@@ -179,49 +182,51 @@ function endGame() {
     gameState.isPlaying = false;
     clearInterval(gameState.timerInterval);
     
+    // Calculate score (example: time + moves)
+    const finalScore = gameState.timer + gameState.moves;
+    
     finalTimeDisplay.textContent = gameState.timer;
     finalMovesDisplay.textContent = gameState.moves;
     
-    // Save score to leaderboard
-    saveScore();
+    // Save score for this player
+    saveScore(finalScore);
+    
+    // Update score screen display
+    document.querySelector('#score-screen h2').textContent = 'Game Over!';
+    document.querySelector('.score-details').innerHTML = 
+        `<p>Your Score: ${finalScore}</p>`;
     
     gameScreen.classList.add('hidden');
     scoreScreen.classList.remove('hidden');
 }
 
-// Save score
-function saveScore() {
-    const scores = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
-    scores.push({
+// Save score (only the last one for the current player)
+function saveScore(score) {
+    const playerScore = {
         name: gameState.playerName,
-        time: gameState.timer,
-        moves: gameState.moves,
-        difficulty: gameState.difficulty,
-        date: new Date().toISOString()
-    });
-    
-    // Sort by time and keep only top 10 scores
-    scores.sort((a, b) => a.time - b.time);
-    const topScores = scores.slice(0, 10);
-    
-    localStorage.setItem('memoryGameScores', JSON.stringify(topScores));
+        score: score
+    };
+    localStorage.setItem('lastMemoryGameScore', JSON.stringify(playerScore));
 }
 
-// Show leaderboard
+// Show leaderboard (now shows last game score)
 function showLeaderboard() {
-    const scores = JSON.parse(localStorage.getItem('memoryGameScores') || '[]');
+    const playerScore = JSON.parse(localStorage.getItem('lastMemoryGameScore') || 'null');
     leaderboardList.innerHTML = '';
     
-    scores.forEach((score, index) => {
+    document.querySelector('#leaderboard-screen h2').textContent = 'Last Game Score';
+    backToGameBtn.textContent = 'Back to Welcome'; // Update button text
+
+    if (playerScore) {
         const scoreElement = document.createElement('div');
         scoreElement.className = 'leaderboard-item';
         scoreElement.innerHTML = `
-            <strong>${index + 1}.</strong> ${score.name} - 
-            Time: ${score.time}s, Moves: ${score.moves} 
-            (${score.difficulty})
+            <strong>${playerScore.name}:</strong> ${playerScore.score}
         `;
         leaderboardList.appendChild(scoreElement);
-    });
+    } else {
+        leaderboardList.innerHTML = '<p>No score recorded yet.</p>';
+    }
     
     scoreScreen.classList.add('hidden');
     leaderboardScreen.classList.remove('hidden');
@@ -232,4 +237,7 @@ function resetGame() {
     scoreScreen.classList.add('hidden');
     welcomeScreen.classList.remove('hidden');
     playerNameInput.value = '';
+    // Reset difficulty selection visual
+    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+    // Optionally reset to default difficulty internally if needed, but the current logic handles it per game start
 } 
