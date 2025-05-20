@@ -15,8 +15,16 @@ let gameState = {
     timerInterval: null,
     playerName: '',
     difficulty: 'easy',
-    isPlaying: false
+    isPlaying: false,
+    playerId: localStorage.getItem('playerId') || generatePlayerId() // Add playerId
 };
+
+// Generate unique player ID
+function generatePlayerId() {
+    const id = 'player_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('playerId', id);
+    return id;
+}
 
 // DOM Elements
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -200,32 +208,59 @@ function endGame() {
     scoreScreen.classList.remove('hidden');
 }
 
-// Save score (only the last one for the current player)
+// Save score
 function saveScore(score) {
-    const playerScore = {
-        name: gameState.playerName,
-        score: score
-    };
-    localStorage.setItem('lastMemoryGameScore', JSON.stringify(playerScore));
+    // Get existing scores
+    const allScores = JSON.parse(localStorage.getItem('memoryGameScores') || '{}');
+    
+    // Add new score for this player
+    if (!allScores[gameState.playerId]) {
+        allScores[gameState.playerId] = {
+            name: gameState.playerName,
+            scores: []
+        };
+    }
+    
+    // Add new score
+    allScores[gameState.playerId].scores.push({
+        score: score,
+        date: new Date().toISOString()
+    });
+    
+    // Keep only the last 5 scores per player
+    if (allScores[gameState.playerId].scores.length > 5) {
+        allScores[gameState.playerId].scores = allScores[gameState.playerId].scores.slice(-5);
+    }
+    
+    // Save back to localStorage
+    localStorage.setItem('memoryGameScores', JSON.stringify(allScores));
 }
 
-// Show leaderboard (now shows last game score)
+// Show leaderboard
 function showLeaderboard() {
-    const playerScore = JSON.parse(localStorage.getItem('lastMemoryGameScore') || 'null');
+    const allScores = JSON.parse(localStorage.getItem('memoryGameScores') || '{}');
     leaderboardList.innerHTML = '';
     
-    document.querySelector('#leaderboard-screen h2').textContent = 'Last Game Score';
-    backToGameBtn.textContent = 'Back to Welcome'; // Update button text
-
-    if (playerScore) {
-        const scoreElement = document.createElement('div');
-        scoreElement.className = 'leaderboard-item';
-        scoreElement.innerHTML = `
-            <strong>${playerScore.name}:</strong> ${playerScore.score}
-        `;
-        leaderboardList.appendChild(scoreElement);
+    // Get current player's scores
+    const playerScores = allScores[gameState.playerId];
+    
+    if (playerScores && playerScores.scores.length > 0) {
+        // Sort scores (best first)
+        const sortedScores = [...playerScores.scores].sort((a, b) => a.score - b.score);
+        
+        // Display scores
+        sortedScores.forEach((scoreData, index) => {
+            const scoreElement = document.createElement('div');
+            scoreElement.className = 'leaderboard-item';
+            const date = new Date(scoreData.date).toLocaleDateString();
+            scoreElement.innerHTML = `
+                <strong>${index + 1}.</strong> ${playerScores.name}: ${scoreData.score} 
+                <small>(${date})</small>
+            `;
+            leaderboardList.appendChild(scoreElement);
+        });
     } else {
-        leaderboardList.innerHTML = '<p>No score recorded yet.</p>';
+        leaderboardList.innerHTML = '<p>No scores recorded yet.</p>';
     }
     
     scoreScreen.classList.add('hidden');
