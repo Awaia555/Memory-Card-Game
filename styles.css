@@ -155,6 +155,18 @@ button:hover {
     animation: celebrate 0.5s ease-in-out;
 }
 
+/* Matched card glow */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(0, 255, 0, 1); }
+    100% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+}
+
+.card.matched .card-front, .card.matched .card-back {
+    animation: glow 1.5s infinite alternate;
+    border: 2px solid limegreen;
+}
+
 /* Responsive design */
 @media (max-width: 600px) {
     .container {
